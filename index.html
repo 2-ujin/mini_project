@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Yujin Lee — Portfolio</title>
+<style>
+  :root{
+    --paper:#FFFFFF; --card:#FFFFFF; --ink:#20261F; --muted:#5E655C; --faint:#8A9187;
+    --line:#E4E2DA; --line-soft:#EDEBE3;
+    --accent:#1E6E58; --accent-soft:#DCEAE3; --accent-ink:#155041;
+    --shadow:0 1px 2px rgba(30,40,30,.04), 0 6px 20px rgba(30,40,30,.05);
+    --tag-bg-ground:#ffffff; --tag-bg-amt:16%; --tag-fg-ground:#0b0f0b; --tag-fg-amt:74%; --tag-bd-amt:34%;
+    --font-display:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+    --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    --font-mono:"SF Mono","Cascadia Code",Consolas,"Liberation Mono",Menlo,monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --paper:#15171A; --card:#1D2024; --ink:#E7E9E4; --muted:#A2A9A0; --faint:#7C837B;
+      --line:#2C3035; --line-soft:#24272B;
+      --accent:#5FC3A6; --accent-soft:#1C332C; --accent-ink:#8FD9C4;
+      --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 26px rgba(0,0,0,.35);
+      --tag-bg-ground:#1f2226; --tag-bg-amt:26%; --tag-fg-ground:#f2f4ef; --tag-fg-amt:48%; --tag-bd-amt:40%;
+    }
+  }
+  :root[data-theme="light"]{
+    --paper:#FFFFFF; --card:#FFFFFF; --ink:#20261F; --muted:#5E655C; --faint:#8A9187;
+    --line:#E4E2DA; --line-soft:#EDEBE3;
+    --accent:#1E6E58; --accent-soft:#DCEAE3; --accent-ink:#155041;
+    --shadow:0 1px 2px rgba(30,40,30,.04), 0 6px 20px rgba(30,40,30,.05);
+    --tag-bg-ground:#ffffff; --tag-bg-amt:16%; --tag-fg-ground:#0b0f0b; --tag-fg-amt:74%; --tag-bd-amt:34%;
+  }
+  :root[data-theme="dark"]{
+    --paper:#15171A; --card:#1D2024; --ink:#E7E9E4; --muted:#A2A9A0; --faint:#7C837B;
+    --line:#2C3035; --line-soft:#24272B;
+    --accent:#5FC3A6; --accent-soft:#1C332C; --accent-ink:#8FD9C4;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 26px rgba(0,0,0,.35);
+    --tag-bg-ground:#1f2226; --tag-bg-amt:26%; --tag-fg-ground:#f2f4ef; --tag-fg-amt:48%; --tag-bd-amt:40%;
+  }
+
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font-sans);
+    line-height:1.6;-webkit-font-smoothing:antialiased;font-size:16px}
+  .wrap{max-width:1000px;margin:0 auto;padding:0 24px}
+
+  /* ---------- header ---------- */
+  .site-header{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--paper) 88%,transparent);
+    backdrop-filter:saturate(1.4) blur(10px);border-bottom:1px solid var(--line)}
+  .hbar{max-width:1000px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  .brand{font-family:var(--font-sans);font-weight:700;font-size:1.05rem;letter-spacing:.01em;margin-right:auto}
+  .brand small{display:block;font-family:var(--font-sans);font-weight:500;font-size:.72rem;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--faint);margin-top:1px}
+  .tabs{display:flex;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:4px}
+  .tab{appearance:none;border:0;background:transparent;color:var(--muted);font:inherit;font-size:.9rem;font-weight:600;
+    padding:7px 16px;border-radius:999px;cursor:pointer;transition:background .18s,color .18s}
+  .tab[aria-selected="true"]{background:var(--accent);color:#fff}
+  :root[data-theme="dark"] .tab[aria-selected="true"],
+  @media (prefers-color-scheme:dark){}
+  .tab:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .lang{display:flex;gap:2px;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:3px}
+  .lang button{appearance:none;border:0;background:transparent;color:var(--muted);font:inherit;font-size:.8rem;
+    font-weight:600;padding:5px 12px;border-radius:999px;cursor:pointer}
+  body[data-lang="en"] .lang [data-l="en"],body[data-lang="ko"] .lang [data-l="ko"]{background:var(--accent-soft);color:var(--accent-ink)}
+
+  /* ---------- panels ---------- */
+  .panel{display:none;padding:44px 0 80px}
+  .panel.active{display:block;animation:fade .3s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){.panel.active{animation:none}}
+
+  /* ---------- hero ---------- */
+  .hero{border-bottom:1px solid var(--line-soft);padding-bottom:32px;margin-bottom:36px}
+  .eyebrow{font-size:.74rem;letter-spacing:.18em;text-transform:uppercase;color:var(--accent-ink);font-weight:700}
+  .hero h1{font-family:var(--font-sans);font-weight:700;font-size:clamp(2.1rem,5vw,3.2rem);line-height:1.08;
+    margin:.35em 0 .2em;text-wrap:balance;letter-spacing:-.02em}
+  .hero .lede{font-size:1.12rem;color:var(--muted);max-width:60ch;margin:0}
+  .meta{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:20px;font-size:.9rem;color:var(--muted)}
+  .meta b{color:var(--ink);font-weight:600}
+  .meta span{display:inline-flex;align-items:center;gap:7px}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--accent)}
+
+  h2.sec{font-family:var(--font-sans);font-weight:700;font-size:1.4rem;margin:44px 0 4px;letter-spacing:-.01em}
+  .sec-sub{color:var(--faint);font-size:.9rem;margin:0 0 20px}
+
+  /* skills */
+  .skills{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{font-family:var(--font-mono);font-size:.82rem;padding:6px 11px;border-radius:8px;background:var(--paper);
+    border:1px solid var(--line);color:var(--ink)}
+
+  /* company block */
+  .co{margin-top:34px}
+  .co-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;padding-bottom:14px;
+    border-bottom:1px solid var(--line-soft);margin-bottom:18px}
+  .co-head h3{font-family:var(--font-sans);font-size:1.22rem;font-weight:700;margin:0;letter-spacing:-.01em}
+  .co-head .role{color:var(--muted);font-size:.92rem}
+  .co-head .when{margin-left:auto;color:var(--faint);font-size:.82rem;font-family:var(--font-mono)}
+  .co-sum{color:var(--muted);font-size:.92rem;margin:-6px 0 18px;max-width:74ch}
+
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+  .pcard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 18px 16px;
+    box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px}
+  .pcard h4{margin:0;font-size:1.02rem;font-weight:650;line-height:1.3}
+  .pcard p{margin:0;color:var(--muted);font-size:.9rem}
+  .stat{display:inline-flex;align-items:center;gap:8px;font-size:.86rem;font-weight:600;color:var(--accent-ink);
+    background:var(--accent-soft);border-radius:8px;padding:5px 10px;align-self:flex-start}
+  .taglist{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto;padding-top:4px}
+
+  /* ---------- tags ---------- */
+  .tag{--tc:#7C8189;font-family:var(--font-sans);font-size:.72rem;font-weight:600;letter-spacing:.02em;
+    padding:3px 9px;border-radius:6px;white-space:nowrap;
+    background:color-mix(in srgb,var(--tc) var(--tag-bg-amt),var(--tag-bg-ground));
+    color:color-mix(in srgb,var(--tc) var(--tag-fg-amt),var(--tag-fg-ground));
+    border:1px solid color-mix(in srgb,var(--tc) var(--tag-bd-amt),transparent)}
+  .h-amber{--tc:#DD972F}.h-blue{--tc:#3E82C4}.h-rose{--tc:#E0455E}.h-purple{--tc:#9163CE}
+  .h-pink{--tc:#D067A0}.h-green{--tc:#3F9E62}.h-teal{--tc:#2C978F}.h-gold{--tc:#BE912E}.h-gray{--tc:#7C8189}
+
+  /* ---------- interview ---------- */
+  .toolbar{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-bottom:8px;
+    display:flex;gap:16px;flex-wrap:wrap;align-items:center;box-shadow:var(--shadow)}
+  .toolbar p{margin:0;font-size:.9rem;color:var(--muted);flex:1 1 260px}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.78rem;color:var(--faint)}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .swatch{width:10px;height:10px;border-radius:3px}
+
+  .filters{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 10px}
+  .filt{appearance:none;border:1px solid var(--line);background:var(--card);color:var(--muted);font:inherit;
+    font-size:.88rem;font-weight:600;padding:8px 16px;border-radius:999px;cursor:pointer;transition:background .15s,color .15s,border-color .15s}
+  .filt:hover{border-color:var(--accent)}
+  .filt.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .filt:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .kw{flex:none}
+
+  .qgroup{margin-top:30px}
+  .qgroup > h3{font-family:var(--font-sans);font-size:1.12rem;font-weight:700;margin:0 0 6px;letter-spacing:-.01em;
+    display:flex;align-items:center;gap:10px}
+  .qgroup > h3 .num{font-family:var(--font-mono);font-size:.8rem;color:var(--faint);font-weight:500}
+  .qlist{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+
+  .qa{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:var(--shadow)}
+  .qa.big3{border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+  .q-head{width:100%;appearance:none;border:0;background:transparent;color:var(--ink);font:inherit;text-align:left;
+    cursor:pointer;padding:15px 18px;display:flex;align-items:center;gap:12px}
+  .q-head:hover{background:color-mix(in srgb,var(--accent) 6%,transparent)}
+  .q-head:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+  .q-q{font-weight:600;font-size:.98rem;flex:1}
+  .q-en{color:var(--faint);font-weight:400;font-size:.86rem;display:block;margin-top:2px}
+  .star{font-size:.64rem;font-weight:700;letter-spacing:.08em;color:var(--accent-ink);background:var(--accent-soft);
+    padding:2px 7px;border-radius:5px;text-transform:uppercase}
+  .chev{width:18px;height:18px;flex:none;color:var(--faint);transition:transform .22s}
+  .qa.open .chev{transform:rotate(90deg)}
+
+  .q-wrap{display:grid;grid-template-rows:0fr;transition:grid-template-rows .26s ease}
+  .qa.open .q-wrap{grid-template-rows:1fr}
+  @media (prefers-reduced-motion:reduce){.q-wrap{transition:none}}
+  .q-inner{overflow:hidden}
+  .q-body{padding:2px 18px 18px;border-top:1px solid var(--line-soft)}
+  .answer{font-size:.94rem;margin:14px 0 0}
+  .answer.en{font-style:normal}
+  .answer p{margin:0 0 10px}
+  .answer .lead{color:var(--accent-ink);font-weight:600}
+  body[data-lang="en"] .answer.ko{display:none}
+  body[data-lang="ko"] .answer.en{display:none}
+  body[data-lang="en"] .l-ko{display:none}
+  body[data-lang="ko"] .l-en{display:none}
+  .a-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;padding-top:12px;border-top:1px dashed var(--line)}
+  .a-tags .lbl{font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);
+    align-self:center;margin-right:2px;font-weight:700}
+
+  footer{border-top:1px solid var(--line);padding:26px 0;color:var(--faint);font-size:.84rem;text-align:center}
+  a{color:var(--accent-ink)}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="hbar">
+    <div class="brand">Yujin Lee<small>Data / Business Analyst</small></div>
+    <div class="lang" role="group" aria-label="Language">
+      <button data-l="en" type="button">EN</button>
+      <button data-l="ko" type="button">KOR</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ================= PORTFOLIO ================= -->
+  <section class="panel active" id="portfolio" role="tabpanel">
+    <div class="hero">
+      <div class="eyebrow l-en">E-commerce &middot; Retail &middot; Finance Analytics</div>
+      <div class="eyebrow l-ko">이커머스 &middot; 리테일 &middot; 파이낸스 애널리틱스</div>
+      <h1 class="l-en">I find the decisions hiding in your data.</h1>
+      <h1 class="l-ko">데이터 속에 숨은 의사결정을 찾아냅니다.</h1>
+      <p class="lede l-en">Data &amp; business analyst with 5+ years across three major e-commerce brands — from BI storytelling and behavioural analysis to financial data pipelines at scale.</p>
+      <p class="lede l-ko">이커머스 3사에서 5년 이상 — BI 스토리텔링과 행동 분석부터 대규모 재무 데이터 파이프라인까지 경험한 데이터·비즈니스 분석가입니다.</p>
+      <div class="meta l-en">
+        <span><span class="dot"></span><b>Seoul, KR</b> &rarr; Brisbane, AU</span>
+        <span>QUT M.IT (2026&ndash;2028)</span>
+        <span>SQL &middot; Python &middot; BI</span>
+        <span>yujin.lee.smwu@gmail.com</span>
+      </div>
+      <div class="meta l-ko">
+        <span><span class="dot"></span><b>서울, KR</b> &rarr; 브리즈번, AU</span>
+        <span>QUT 정보기술 석사 (2026&ndash;2028)</span>
+        <span>SQL &middot; Python &middot; BI</span>
+        <span>yujin.lee.smwu@gmail.com</span>
+      </div>
+    </div>
+
+    <h2 class="sec l-en">Toolbox</h2>
+    <h2 class="sec l-ko">툴박스</h2>
+    <div class="skills">
+      <span class="chip">SQL</span><span class="chip">Power BI</span><span class="chip">Airflow</span>
+      <span class="chip">Tableau</span><span class="chip">BigQuery</span><span class="chip">Databricks</span>
+      <span class="chip">QuickSight</span><span class="chip">Amplitude</span><span class="chip">P&amp;L / Finance</span>
+      <span class="chip">Python / pandas</span>
+    </div>
+
+    <h2 class="sec l-en">Experience</h2>
+    <h2 class="sec l-ko">경력</h2>
+    <p class="sec-sub l-en">Each card carries the company, the type of work, and the headline result.</p>
+    <p class="sec-sub l-ko">각 카드에는 회사, 업무 유형, 핵심 성과가 담겨 있습니다.</p>
+
+    <!-- COUPANG -->
+    <div class="co">
+      <div class="co-head">
+        <h3>Coupang</h3><span class="role l-en">Business Analyst, Retail FP&amp;A</span><span class="role l-ko">비즈니스 애널리스트, 리테일 FP&amp;A</span>
+        <span class="when">2024.09 &ndash; 2026.05</span>
+      </div>
+      <p class="co-sum l-en">Built the data logic and dashboards that raised the accuracy of everything from GMV to inventory loss to gross profit, supported the FP&amp;A team's planning, and investigated the root causes behind specific financial issues.</p>
+      <p class="co-sum l-ko">GMV(매출)부터 재고 손실, 순이익(gross profit)까지 다양한 데이터의 정확도를 높이는 데이터 로직·대시보드를 개발하고, FP&amp;A의 플래닝을 지원하며 특정 이슈의 원인을 분석·제안했습니다.</p>
+      <div class="cards">
+        <article class="pcard">
+          <h4 class="l-en">Company-wide P&amp;L allocation pipeline</h4><h4 class="l-ko">전사 손익(P&amp;L) 배분 파이프라인</h4>
+          <p class="l-en">Re-architected the data model behind the CFP report: a waterfall allocation engine, a multi-tier fallback framework, and a time-series hybrid that auto-branches when business rules change.</p>
+          <p class="l-ko">전사 손익(CFP) 리포트 뒤의 데이터 모델을 재설계 — 폭포수 배분 엔진, 다단계 폴백 프레임워크, 비즈니스 룰 변경 시 자동 분기하는 시계열 하이브리드.</p>
+          <span class="stat l-en">&#9679; 0% data loss</span><span class="stat l-ko">&#9679; 데이터 손실 0%</span>
+          <div class="taglist"><span class="tag h-rose">COUPANG</span><span class="tag h-green">Pipeline</span><span class="tag h-teal">SQL Tuning</span><span class="tag h-gold">Data Integrity</span></div>
+        </article>
+        <article class="pcard">
+          <h4 class="l-en">False out-of-stock cashback leakage</h4><h4 class="l-ko">가성 품절 보상(캐시백) 누수 분석</h4>
+          <p class="l-en">Joined order/cancellation data with hourly warehouse inventory to prove that "out-of-stock" cashback was paid when stock actually existed — segmented by cause, category and seller type.</p>
+          <p class="l-ko">주문·취소 데이터를 시간대별 창고 재고와 결합해, 재고가 있었는데도 '품절' 캐시백이 지급된 케이스를 규명 — 원인·카테고리·판매자 유형별로 세분화.</p>
+          <span class="stat l-en">&#9650; ~&#8361;1B leakage prevented &middot; company award</span><span class="stat l-ko">&#9650; 약 10억원 누수 방지 &middot; 사내 수상</span>
+          <div class="taglist"><span class="tag h-rose">COUPANG</span><span class="tag h-blue">Analysis</span><span class="tag h-gold">Financial Impact</span><span class="tag h-gold">Award</span></div>
+        </article>
+        <article class="pcard">
+          <h4 class="l-en">Rocket Install P&amp;L &mdash; cross-team alignment</h4><h4 class="l-ko">로켓 설치 P&amp;L &mdash; 타팀 합의</h4>
+          <p class="l-en">Resolved a disagreement with FC Finance on inventory-loss attribution by finding the procurement code that defines Rocket Install SKUs — objective evidence, not opinion.</p>
+          <p class="l-ko">재고 손실 귀속을 두고 FC 파이낸스팀과의 이견을, 로켓 설치 SKU를 정의하는 발주 코드를 찾아 해결 — 의견이 아닌 객관적 근거.</p>
+          <span class="stat l-en">&#9679; Other team adopted our logic</span><span class="stat l-ko">&#9679; 타팀이 우리 로직 채택</span>
+          <div class="taglist"><span class="tag h-rose">COUPANG</span><span class="tag h-purple">Persuasion</span><span class="tag h-gold">Finance</span></div>
+        </article>
+        <article class="pcard">
+          <h4 class="l-en">Power BI reliability fix</h4><h4 class="l-ko">Power BI 안정성 개선</h4>
+          <p class="l-en">Owned a month-long refresh-failure problem across 60+ dashboards: consolidated overlapping reports and moved heavy logic into pre-built read-only tables.</p>
+          <p class="l-ko">60개+ 대시보드의 한 달간 리프레시 실패 문제를 오너십으로 해결 — 중복 리포트 통합, 무거운 로직을 사전 생성 read-only 테이블로 이전.</p>
+          <span class="stat l-en">&#9679; Daily errors eliminated</span><span class="stat l-ko">&#9679; 매일 발생 에러 제거</span>
+          <div class="taglist"><span class="tag h-rose">COUPANG</span><span class="tag h-pink">Dashboard</span><span class="tag h-teal">Optimization</span></div>
+        </article>
+        <article class="pcard">
+          <h4 class="l-en">Aging discount management</h4><h4 class="l-ko">에이징(Aging) 할인 관리</h4>
+          <p class="l-en">Directly owned the Aging discount — the lever tied straight to customer sales — tracking its impact and adjusting discount rates across a ₩20 billion book.</p>
+          <p class="l-ko">고객 판매에 직결되는 Aging 할인을 직접 관리하며, impact을 확인하고 200억 원 규모의 할인율을 조정했습니다.</p>
+          <span class="stat l-en">&#9650; ~&#8361;20B discount book managed</span><span class="stat l-ko">&#9650; 약 200억원 규모 할인율 관리</span>
+          <div class="taglist"><span class="tag h-rose">COUPANG</span><span class="tag h-green">Pricing</span><span class="tag h-purple">Ownership</span></div>
+        </article>
+        <article class="pcard">
+          <h4 class="l-en">Re-order decisions for distressed-history SKUs</h4><h4 class="l-ko">distressed 이력이 있는 SKU의 재발주 여부 결정</h4>
+          <p class="l-en">Built the logic that judges whether to approve MDs' purchase orders against slow-moving (dead) stock — preventing inventory loss from over-ordering.</p>
+          <p class="l-ko">MD의 악성재고 발주 허가 여부를 판단하는 로직을 만들어, 과발주로 인한 inventory loss 발생을 방지했습니다.</p>
+          <span class="stat l-en">&#9679; Prevented over-order loss</span><span class="stat l-ko">&#9679; 과발주 재고손실 방지</span>
+          <div class="taglist"><span class="tag h-rose">COUPANG</span><span class="tag h-teal">Decision Logic</span><span class="tag h-green">Inventory</span></div>
+        </article>
+      </div>
+    </div>
+
+    <!-- MUSINSA -->
+    <div class="co">
+      <div class="co-head">
+        <h3>MUSINSA</h3><span class="role l-en">Data Analyst, CEO Staff / Product Experience</span><span class="role l-ko">데이터 애널리스트, CEO Staff / 프로덕트 경험</span>
+        <span class="when">2023.06 &ndash; 2024.01</span>
+      </div>
+      <div class="cards">
+        <article class="pcard">
+          <h4 class="l-en">Onboarding customer segmentation</h4><h4 class="l-ko">온보딩 고객 세그먼테이션</h4>
+          <p class="l-en">Built four hypothesis-driven segments in advanced BigQuery SQL (multi-CTE, window functions), isolated the leaking segment, and partnered with UX research to find the root cause.</p>
+          <p class="l-ko">고급 BigQuery SQL(다중 CTE·윈도우 함수)로 가설 기반 4개 세그먼트를 구축, 누수 세그먼트를 특정하고 UX 리서치와 협업해 근본 원인을 도출.</p>
+          <span class="stat l-en">&#9650; +22% repurchase rate</span><span class="stat l-ko">&#9650; 재구매율 +22%</span>
+          <div class="taglist"><span class="tag h-blue">MUSINSA</span><span class="tag h-teal">SQL</span><span class="tag h-gold">Strategy</span></div>
+        </article>
+        <article class="pcard">
+          <h4 class="l-en">Company-wide KPI standardisation</h4><h4 class="l-ko">전사 KPI 표준화</h4>
+          <p class="l-en">Led a cross-team project to unify metric definitions, set a North Star metric, published a Confluence guide, and built QuickSight dashboards on Databricks pipelines.</p>
+          <p class="l-ko">지표 정의를 통일하는 크로스팀 프로젝트를 리딩 — 북극성 지표 정의, Confluence 가이드 배포, Databricks 파이프라인 기반 QuickSight 대시보드 제작.</p>
+          <span class="stat l-en">&#9679; One org-wide standard</span><span class="stat l-ko">&#9679; 전사 단일 표준 확립</span>
+          <div class="taglist"><span class="tag h-blue">MUSINSA</span><span class="tag h-purple">Governance</span><span class="tag h-pink">Dashboard</span></div>
+        </article>
+        <article class="pcard">
+          <h4 class="l-en">Toss-campaign conversion mystery</h4><h4 class="l-ko">토스 캠페인 전환율 미스터리</h4>
+          <p class="l-en">Reframed a feared "product crisis": traced an abnormal conversion drop to a cheap Toss marketing campaign bringing low-quality leads that converted under 2%.</p>
+          <p class="l-ko">우려하던 '프로덕트 위기'를 재정의 — 비정상 전환율 하락을, 전환율 2% 미만의 저품질 유입을 부른 저가 토스 마케팅 캠페인으로 규명.</p>
+          <span class="stat l-en">&#9679; Found the hidden cause</span><span class="stat l-ko">&#9679; 숨은 원인 발견</span>
+          <div class="taglist"><span class="tag h-blue">MUSINSA</span><span class="tag h-blue">Analysis</span><span class="tag h-purple">Problem-solving</span></div>
+        </article>
+        <article class="pcard">
+          <h4 class="l-en">Recommendation metrics &amp; goal tool</h4><h4 class="l-ko">추천 지표 &amp; 목표 설정 툴</h4>
+          <p class="l-en">Defined org-consistent recommendation metrics with the Data Product team, and built a seasonality-aware goal-setting tool linking GMV and buyer targets.</p>
+          <p class="l-ko">데이터 프로덕트팀과 함께 전사 일관 추천 지표를 정의하고, GMV·바이어 목표를 연결하는 시즌성 반영 목표 설정 툴을 구축.</p>
+          <span class="stat l-en">&#9679; Reusable metric framework</span><span class="stat l-ko">&#9679; 재사용 가능한 지표 프레임워크</span>
+          <div class="taglist"><span class="tag h-blue">MUSINSA</span><span class="tag h-green">Metrics</span><span class="tag h-gold">Planning</span></div>
+        </article>
+      </div>
+    </div>
+
+    <!-- NIKE -->
+    <div class="co">
+      <div class="co-head">
+        <h3>Nike Korea</h3><span class="role l-en">Commercial / Insights &amp; Analytics Analyst</span><span class="role l-ko">커머셜 / 인사이트 &amp; 애널리틱스 애널리스트</span>
+        <span class="when">2021.04 &ndash; 2023.04, 2024</span>
+      </div>
+      <div class="cards">
+        <article class="pcard">
+          <h4 class="l-en">World Cup KNT sales dashboards</h4><h4 class="l-ko">월드컵 KNT 판매 대시보드</h4>
+          <p class="l-en">Built four Tableau dashboards tracking Korea National Team product sales against the match schedule and marketing events, and set a new sell-through benchmark for event products.</p>
+          <p class="l-ko">국가대표팀(KNT) 상품 판매를 경기 일정·마케팅 이벤트와 함께 추적하는 태블로 대시보드 4종을 제작하고, 이벤트 상품용 새 sell-through 기준을 수립.</p>
+          <span class="stat l-en">&#9650; &gt;70% ST% (key items 90%+)</span><span class="stat l-ko">&#9650; ST% 70%+ (핵심 상품 90%+)</span>
+          <div class="taglist"><span class="tag h-amber">NIKE KOREA</span><span class="tag h-pink">Dashboard</span><span class="tag h-purple">Report</span></div>
+        </article>
+        <article class="pcard">
+          <h4 class="l-en">Kids market 3-year analysis</h4><h4 class="l-ko">키즈 마켓 3년 트렌드 분석</h4>
+          <p class="l-en">Led solo: blended external population data with internal sales, engineered an Age-Group metric, and found a supply-demand mismatch in a key product line.</p>
+          <p class="l-ko">단독 수행 — 외부 인구 데이터와 내부 매출을 결합, Age-Group 지표를 설계하고 핵심 상품군의 수급 불일치를 발견.</p>
+          <span class="stat l-en">&#9650; +18% Kids revenue, FY22</span><span class="stat l-ko">&#9650; FY22 키즈 매출 +18%</span>
+          <div class="taglist"><span class="tag h-amber">NIKE KOREA</span><span class="tag h-blue">Analysis</span><span class="tag h-gold">External Data</span></div>
+        </article>
+        <article class="pcard">
+          <h4 class="l-en">HQ data-migration outage response</h4><h4 class="l-ko">본사 데이터 마이그레이션 사태 대응</h4>
+          <p class="l-en">During a 4-week loss of Korea's sales data, escalated directly to HQ and, in parallel, built a Snowflake workaround covering ~68% of stores to keep teams running.</p>
+          <p class="l-ko">한국 매출 데이터 4주 중단 기간, 본사에 직접 에스컬레이션하는 동시에 매장 약 68%를 커버하는 Snowflake 우회책을 구축해 업무 마비를 방지.</p>
+          <span class="stat l-en">&#9679; 68% coverage restored</span><span class="stat l-ko">&#9679; 68% 커버리지 복구</span>
+          <div class="taglist"><span class="tag h-amber">NIKE KOREA</span><span class="tag h-purple">Communication</span><span class="tag h-teal">Problem-solving</span></div>
+        </article>
+        <article class="pcard">
+          <h4 class="l-en">Read&amp;Act sales planning</h4><h4 class="l-ko">Read&amp;Act 판매 기획</h4>
+          <p class="l-en">Recurring cadence with Demand &amp; Supply: flagged excess-inventory / weak-sales products and agreed channel re-allocation and promo actions over 4-week cycles.</p>
+          <p class="l-ko">Demand &amp; Supply와의 정기 협업 — 재고 과다·판매 부진 상품을 선별하고 4주 단위로 채널 재배분·프로모션 액션을 합의.</p>
+          <span class="stat l-en">&#9679; Data-driven ops</span><span class="stat l-ko">&#9679; 데이터 기반 운영</span>
+          <div class="taglist"><span class="tag h-amber">NIKE KOREA</span><span class="tag h-gold">Planning</span><span class="tag h-green">Operations</span></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="wrap">Yujin Lee &middot; Data / Business Analyst &middot; yujin.lee.smwu@gmail.com</footer>
+
+<script>
+  var body=document.body;body.dataset.lang='en';
+  document.querySelectorAll('.lang button').forEach(function(b){
+    b.addEventListener('click',function(){body.dataset.lang=b.dataset.l;});
+  });
+</script>
+</body>
+</html>

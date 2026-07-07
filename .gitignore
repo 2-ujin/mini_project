@@ -1,0 +1,10 @@
+credentials.json
+token.json
+*.pyc
+__pycache__/
+.env
+.venv/
+venv/
+
+# full two-page version (contains interview answers) — keep local, do not publish
+yujin_portfolio.html
