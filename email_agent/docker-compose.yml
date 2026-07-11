@@ -1,0 +1,13 @@
+services:
+  email-agent:
+    build: .
+    env_file: secrets.env          # GEMINI_API_KEY 등 (이미지에 넣지 않음)
+    environment:
+      - HEADLESS=1                  # 컨테이너에서는 브라우저를 열지 않음
+      - TZ=Australia/Brisbane
+    volumes:
+      # 비밀정보/상태는 런타임에 주입 (이미지에 굽지 않음)
+      - ./credentials.json:/app/credentials.json:ro   # 읽기 전용
+      - ./token.json:/app/token.json                  # 토큰 갱신 위해 쓰기 가능
+      - ./state:/app/state                            # 캐시/쿼터/결과 HTML
+    restart: unless-stopped

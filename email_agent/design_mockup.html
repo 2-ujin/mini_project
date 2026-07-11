@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>뉴스레터 요약 - 2026-07-10 09:30</title>
+<style>
+  :root{
+    --bg:#f4f5f7; --panel:#ffffff; --panel-2:#fafbfc; --border:#e5e7eb;
+    --text:#111827; --text-2:#4b5563; --text-3:#9ca3af;
+    --shadow:0 1px 2px rgba(16,24,40,.05), 0 1px 3px rgba(16,24,40,.04);
+    --shadow-hover:0 4px 12px rgba(16,24,40,.10);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0b1220; --panel:#141c2b; --panel-2:#111827; --border:#273244;
+      --text:#e8edf5; --text-2:#aeb9c9; --text-3:#6b7688;
+      --shadow:0 1px 2px rgba(0,0,0,.4); --shadow-hover:0 6px 18px rgba(0,0,0,.5);
+    }
+  }
+  *{ box-sizing:border-box; }
+  html{ -webkit-text-size-adjust:100%; }
+  body{
+    font-family:'Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',system-ui,-apple-system,'Segoe UI',sans-serif;
+    margin:0; background:var(--bg); color:var(--text); line-height:1.65;
+    font-size:15px; -webkit-font-smoothing:antialiased;
+  }
+
+  /* ---------- header ---------- */
+  header{
+    background:linear-gradient(135deg,#1e293b 0%,#0f172a 100%);
+    color:#fff; padding:26px 20px 20px;
+  }
+  .head-inner{ max-width:820px; margin:0 auto; }
+  header h1{ margin:0; font-size:21px; font-weight:700; letter-spacing:-.2px; }
+  header .sub{ margin:6px 0 0; color:#94a3b8; font-size:13px; }
+  .stats{ display:flex; gap:16px; margin-top:14px; flex-wrap:wrap; }
+  .stat{ font-size:13px; color:#cbd5e1; }
+  .stat b{ color:#fff; font-size:15px; }
+
+  /* ---------- filter chips ---------- */
+  .filters{
+    position:sticky; top:0; z-index:5; background:var(--bg);
+    border-bottom:1px solid var(--border); padding:12px 20px;
+  }
+  .filters-inner{
+    max-width:820px; margin:0 auto; display:flex; gap:8px;
+    overflow-x:auto; -webkit-overflow-scrolling:touch; padding-bottom:2px;
+  }
+  .filters-inner::-webkit-scrollbar{ height:0; }
+  .chip{
+    flex:0 0 auto; cursor:pointer; border:1.5px solid var(--border);
+    background:var(--panel); color:var(--text-2); border-radius:999px;
+    padding:6px 13px; font-size:13px; font-weight:600; font-family:inherit;
+    display:inline-flex; align-items:center; gap:7px; white-space:nowrap;
+    transition:all .15s ease; user-select:none;
+  }
+  .chip:hover{ border-color:var(--text-3); }
+  .chip .cdot{ width:9px; height:9px; border-radius:50%; flex:0 0 auto; }
+  .chip .cnum{ font-size:11px; color:var(--text-3); font-weight:700; }
+  .chip[aria-pressed="true"]{ color:#fff; border-color:transparent; }
+  .chip[aria-pressed="true"] .cnum{ color:rgba(255,255,255,.85); }
+  .chip[aria-pressed="true"] .cdot{ background:#fff !important; }
+
+  /* ---------- list ---------- */
+  main{ max-width:820px; margin:0 auto; padding:8px 20px 60px; }
+  .topic-group{ margin-top:22px; }
+  .topic-head{
+    display:flex; align-items:center; gap:9px; margin:0 0 10px; padding:0 2px;
+  }
+  .topic-head .bar{ width:4px; height:16px; border-radius:2px; }
+  .topic-head h2{ margin:0; font-size:15px; font-weight:700; letter-spacing:-.2px; }
+  .topic-head .gcount{ font-size:12px; color:var(--text-3); font-weight:600; }
+
+  .item{
+    display:block; background:var(--panel); border:1px solid var(--border);
+    border-left:4px solid var(--border); border-radius:12px; padding:15px 17px;
+    margin-bottom:10px; box-shadow:var(--shadow); transition:box-shadow .15s, transform .05s;
+  }
+  .item:hover{ box-shadow:var(--shadow-hover); }
+  .item-top{ display:flex; align-items:center; gap:8px; margin-bottom:7px; flex-wrap:wrap; }
+  .badge{
+    display:inline-block; color:#fff; font-size:11px; font-weight:700;
+    padding:2px 9px; border-radius:999px; letter-spacing:.2px; line-height:1.5;
+  }
+  .item h3{
+    margin:0; font-size:16.5px; font-weight:700; line-height:1.45;
+    letter-spacing:-.2px; color:var(--text);
+  }
+  .summary{ margin:6px 0 11px; color:var(--text-2); font-size:14.5px; }
+  .meta{
+    display:flex; flex-direction:column; gap:3px; font-size:12px;
+    color:var(--text-3); border-top:1px dashed var(--border); padding-top:9px;
+  }
+  .meta .row{ display:flex; gap:6px; align-items:baseline; min-width:0; }
+  .meta .lbl{ flex:0 0 auto; opacity:.75; }
+  .meta .val{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+  /* empty state */
+  .empty{
+    text-align:center; color:var(--text-3); padding:60px 20px;
+    background:var(--panel); border:1px dashed var(--border);
+    border-radius:14px; margin-top:24px;
+  }
+  .empty .emo{ font-size:34px; display:block; margin-bottom:10px; }
+  .no-match{ text-align:center; color:var(--text-3); padding:40px; display:none; }
+
+  footer{ text-align:center; color:var(--text-3); font-size:12px; padding:0 20px 34px; }
+
+  @media (max-width:520px){
+    header h1{ font-size:18px; }
+    .item h3{ font-size:15.5px; }
+    main{ padding:8px 14px 50px; }
+    .filters{ padding:10px 14px; }
+    header{ padding:20px 16px 16px; }
+  }
+</style></head>
+<body>
+
+<header>
+  <div class="head-inner">
+    <h1>📰 뉴스레터 한국어 요약</h1>
+    <p class="sub">생성 시각: 2026-07-10 09:30 · 주제별로 정리했어요</p>
+    <div class="stats">
+      <span class="stat"><b>4</b>개의 뉴스레터</span>
+      <span class="stat"><b>4</b>개 주제</span>
+    </div>
+  </div>
+</header>
+
+<!-- 주제 필터 칩: '전체' + 등장한 주제만 -->
+<nav class="filters" aria-label="주제 필터">
+  <div class="filters-inner" id="chips">
+    <button class="chip" data-filter="all" aria-pressed="true"
+            style="background:#334155;">전체 <span class="cnum">4</span></button>
+    <button class="chip" data-filter="AI" aria-pressed="false"
+            style="--c:#0891b2;">
+      <span class="cdot" style="background:#0891b2"></span>AI <span class="cnum">1</span></button>
+    <button class="chip" data-filter="Career" aria-pressed="false"
+            style="--c:#ea580c;">
+      <span class="cdot" style="background:#ea580c"></span>Career <span class="cnum">1</span></button>
+    <button class="chip" data-filter="Finance" aria-pressed="false"
+            style="--c:#16a34a;">
+      <span class="cdot" style="background:#16a34a"></span>Finance <span class="cnum">1</span></button>
+    <button class="chip" data-filter="Uni" aria-pressed="false"
+            style="--c:#7c3aed;">
+      <span class="cdot" style="background:#7c3aed"></span>Uni <span class="cnum">1</span></button>
+  </div>
+</nav>
+
+<main id="list">
+
+  <!-- ===== AI ===== -->
+  <section class="topic-group" data-topic="AI">
+    <div class="topic-head">
+      <span class="bar" style="background:#0891b2"></span>
+      <h2>AI</h2><span class="gcount">1개</span>
+    </div>
+    <article class="item" style="border-left-color:#0891b2">
+      <div class="item-top">
+        <span class="badge" style="background:#0891b2">AI</span>
+      </div>
+      <h3>GPT-5, 코딩 벤치마크에서 신기록 경신</h3>
+      <p class="summary">이번 주 최대 화제는 GPT-5의 공개로, 주요 코딩 평가에서 기존 모델을 큰 폭으로 앞섰습니다. 특히 긴 문맥 처리와 도구 사용 능력이 개선되어 실무 자동화에 바로 쓸 수 있다는 평가가 나옵니다. 무료 사용자에게도 제한적으로 제공될 예정입니다.</p>
+      <div class="meta">
+        <div class="row"><span class="lbl">📧</span><span class="val">[The AI Weekly] GPT-5 is here — what changed</span></div>
+        <div class="row"><span class="lbl">✉️</span><span class="val">The AI Weekly &lt;hello@theaiweekly.co&gt;</span></div>
+      </div>
+    </article>
+  </section>
+
+  <!-- ===== Career ===== -->
+  <section class="topic-group" data-topic="Career">
+    <div class="topic-head">
+      <span class="bar" style="background:#ea580c"></span>
+      <h2>Career</h2><span class="gcount">1개</span>
+    </div>
+    <article class="item" style="border-left-color:#ea580c">
+      <div class="item-top">
+        <span class="badge" style="background:#ea580c">Career</span>
+      </div>
+      <h3>호주 IT 비즈니스 분석가 채용 공고 12건</h3>
+      <p class="summary">브리즈번과 시드니 지역의 비즈니스 분석가·데이터 분석가 신규 공고가 이번 주 12건 올라왔습니다. 여러 공고에서 SQL과 요구사항 정의 경험을 우대하며, 일부는 영주권 신청자도 지원 가능합니다. 마감이 임박한 공고가 3건 있어 서둘러 확인하는 것이 좋습니다.</p>
+      <div class="meta">
+        <div class="row"><span class="lbl">📧</span><span class="val">Your job alert: Business Analyst in Brisbane QLD</span></div>
+        <div class="row"><span class="lbl">✉️</span><span class="val">SEEK &lt;jobalerts@seek.com.au&gt;</span></div>
+      </div>
+    </article>
+  </section>
+
+  <!-- ===== Finance ===== -->
+  <section class="topic-group" data-topic="Finance">
+    <div class="topic-head">
+      <span class="bar" style="background:#16a34a"></span>
+      <h2>Finance</h2><span class="gcount">1개</span>
+    </div>
+    <article class="item" style="border-left-color:#16a34a">
+      <div class="item-top">
+        <span class="badge" style="background:#16a34a">Finance</span>
+      </div>
+      <h3>미 연준 금리 동결, 환율에 미치는 영향</h3>
+      <p class="summary">연준이 이번 회의에서 기준금리를 동결하면서 달러 강세가 다소 진정되는 흐름입니다. 원·달러 환율은 당분간 좁은 범위에서 움직일 것으로 전망됩니다. 해외 송금이나 유학 자금을 계획 중이라면 환율 변동을 지켜보라는 조언이 담겼습니다.</p>
+      <div class="meta">
+        <div class="row"><span class="lbl">📧</span><span class="val">Morning Brief: Fed holds steady, dollar eases</span></div>
+        <div class="row"><span class="lbl">✉️</span><span class="val">Finance Daily &lt;brief@financedaily.com&gt;</span></div>
+      </div>
+    </article>
+  </section>
+
+  <!-- ===== Uni ===== -->
+  <section class="topic-group" data-topic="Uni">
+    <div class="topic-head">
+      <span class="bar" style="background:#7c3aed"></span>
+      <h2>Uni</h2><span class="gcount">1개</span>
+    </div>
+    <article class="item" style="border-left-color:#7c3aed">
+      <div class="item-top">
+        <span class="badge" style="background:#7c3aed">Uni</span>
+      </div>
+      <h3>QUT 2학기 수강신청 및 장학금 안내</h3>
+      <p class="summary">QUT 2학기 수강신청이 다음 주 월요일에 시작되며, 조기 신청 시 인기 과목 자리를 확보할 수 있습니다. 국제 학생 대상 성적 우수 장학금 신청 기한은 이달 말까지입니다. 관련 서류와 신청 링크가 메일에 포함되어 있습니다.</p>
+      <div class="meta">
+        <div class="row"><span class="lbl">📧</span><span class="val">Semester 2 enrolment now open + scholarship deadlines</span></div>
+        <div class="row"><span class="lbl">✉️</span><span class="val">QUT Student &lt;student@qut.edu.au&gt;</span></div>
+      </div>
+    </article>
+  </section>
+
+  <!-- 필터 결과 없음 (JS가 토글) -->
+  <p class="no-match" id="noMatch">이 주제의 뉴스레터가 없습니다.</p>
+
+  <!-- 데이터가 아예 없을 때: main 안이 아래 한 줄로 대체됨
+  <div class="empty"><span class="emo">📭</span>최근 메일 중 뉴스레터가 없습니다.</div>
+  -->
+</main>
+
+<footer>주제 칩을 눌러 원하는 분류만 볼 수 있어요 · 로컬 파일로 열림</footer>
+
+<script>
+  // 주제 필터: 칩 클릭 시 해당 주제 그룹만 표시
+  var chips = document.querySelectorAll('.chip');
+  var groups = document.querySelectorAll('.topic-group');
+  var noMatch = document.getElementById('noMatch');
+
+  function applyFilter(f){
+    var shown = 0;
+    groups.forEach(function(g){
+      var on = (f === 'all' || g.getAttribute('data-topic') === f);
+      g.style.display = on ? '' : 'none';
+      if(on) shown++;
+    });
+    noMatch.style.display = shown ? 'none' : 'block';
+  }
+  chips.forEach(function(chip){
+    chip.addEventListener('click', function(){
+      chips.forEach(function(c){
+        c.setAttribute('aria-pressed','false');
+        // 비활성 칩은 패널 배경으로 복원
+        if(c.getAttribute('data-filter') !== 'all') c.style.background='';
+      });
+      chip.setAttribute('aria-pressed','true');
+      // 활성 칩은 주제색으로 채움 (전체는 회색 유지)
+      var c = chip.style.getPropertyValue('--c');
+      if(c) chip.style.background = c;
+      applyFilter(chip.getAttribute('data-filter'));
+    });
+  });
+</script>
+</body></html>
