@@ -1,47 +1,128 @@
-# 이메일 에이전트 (MVP / 1단계) — Google Gemini 무료 API 버전
+# 📬 Email Agent — AI-powered Gmail triage, newsletter digest & calendar automation
 
-Gmail 최근 메일을 읽어 Gemini AI로 자동 분류합니다.
-(현재 단계: 분류 결과를 화면에 출력만. 캘린더/라벨은 다음 단계)
+An automated personal assistant that reads my Gmail, **classifies every email** with an LLM,
+labels it, **summarises newsletters** into a bilingual (English/Korean) web dashboard with charts,
+and **adds university & job-interview dates to Google Calendar** — running hands-off every 30 minutes
+in Docker, with a PostgreSQL database for analytics.
 
-## 준비물 2가지 (둘 다 무료, 신용카드 불필요)
+Built end-to-end on **free tiers** (Google Gemini API) — no paid services required.
 
-### 1) Gemini API 키 (AI 분류용, 무료)
-1. https://aistudio.google.com/apikey 접속 → Google 계정 로그인
-2. **Create API key** 클릭 → 키 복사 (`AIza...`)
-3. PowerShell에서 환경변수로 등록:
-   ```powershell
-   setx GEMINI_API_KEY "AIza여기에-복사한-키"
-   ```
-   → 등록 후 **터미널을 새로 열어야** 적용됩니다.
+---
 
-> 무료 티어에는 분당/일당 요청 제한이 있지만, 이메일 몇 개 분류하는 정도는 충분합니다.
+## ✨ What it does
 
-### 2) Gmail API 접근 (credentials.json)
-1. https://console.cloud.google.com 접속
-2. 새 프로젝트 생성 (예: "email-agent")
-3. **API 및 서비스 → 라이브러리** → "Gmail API" 검색 → **사용 설정**
-4. **API 및 서비스 → OAuth 동의 화면** → External → 앱 이름 입력 → 본인 이메일을 테스트 사용자로 추가
-5. **사용자 인증 정보 → 사용자 인증 정보 만들기 → OAuth 클라이언트 ID**
-   - 애플리케이션 유형: **데스크톱 앱**
-6. 생성된 클라이언트의 **JSON 다운로드** → 파일 이름을 `credentials.json`으로 바꿔
-   이 폴더(`C:\Users\yujin\email-agent`)에 넣기
+| Capability | Detail |
+|---|---|
+| 🏷️ **Classify & label** | Sorts each email into `uni / news / message / finance / shopping / real_estate / personal / junk / other`, with nested labels (e.g. `uni/study`, `message/Career`) applied straight to Gmail |
+| 📰 **Newsletter dashboard** | Picks out newsletters, writes an **English + Korean** summary, and renders a web page with a **topic pie chart**, **per-topic keyword charts**, and an expandable full-email view — history is kept cumulatively |
+| 📅 **Smart calendar** | Extracts dated actions and adds **only university deadlines/events and job-interview appointments** to Google Calendar (skips past dates, de-duplicates) |
+| 🗄️ **Database** | Stores every email and event in **PostgreSQL** for SQL queries & analytics |
+| 🤖 **Hands-off** | Packaged with Docker Compose; a scheduler runs the whole pipeline every 30 minutes |
+| 💸 **Free & quota-aware** | Uses the free Gemini tier; batches all emails into **one AI request per run**, with a daily hard cap and a processed-cache so it never re-analyses the same mail |
 
-## 실행 방법
+---
 
-```powershell
-cd C:\Users\yujin\email-agent
-python -m pip install -r requirements.txt
-python classify.py
+## 🏗️ Architecture
+
+```
+                 ┌──────────────────────── Docker Compose ────────────────────────┐
+   Gmail  ──▶    │  email-agent (Python, 30-min scheduler)                         │
+ (+ forwarded    │    1. fetch new mail   2. ONE Gemini request (classify +        │
+  university     │    newsletter + calendar)  3. label Gmail  4. build web page    │
+  mail)          │    5. create calendar events  6. store in DB                    │
+                 │            │                         │                          │
+                 │            ▼                         ▼                          │
+   Google  ◀─────│   results.html (charts + list)   PostgreSQL  ◀── db container   │
+   Calendar ◀────│                                  (emails, events)               │
+                 └────────────────────────────────────────────────────────────────┘
 ```
 
-- 최초 실행 시 브라우저가 열리며 Gmail 접근을 승인하라고 합니다 → 본인 계정으로 승인
-- 승인 후 `token.json`이 자동 생성됩니다 (다음부터는 승인 불필요)
+One batched LLM call per run does classification, newsletter summarisation, and calendar
+extraction together — keeping the project comfortably inside the free Gemini quota.
 
-## 보안 주의
-- `credentials.json`, `token.json`, API 키는 **절대 공유하지 마세요.**
-- 이 파일들은 남에게 보내거나 GitHub에 올리면 안 됩니다.
+---
 
-## 다음 단계 (예정)
-- 2단계: Gmail 라벨 자동 부착
-- 3단계: 과제 마감일 추출 → Google 캘린더 일정 등록
-- 4단계: Docker로 포장 + 주기적 자동 실행
+## 🛠️ Tech stack
+
+- **Language:** Python 3.12
+- **AI / LLM:** Google Gemini API (structured JSON output via Pydantic schemas, prompt engineering)
+- **APIs:** Gmail API, Google Calendar API (OAuth 2.0)
+- **Database:** PostgreSQL 16 (psycopg)
+- **Infra:** Docker & Docker Compose (multi-container: app + database)
+- **Frontend:** self-contained HTML/CSS + inline SVG charts (no external dependencies)
+
+---
+
+## 🚀 Getting started
+
+### Prerequisites
+- Docker Desktop
+- A Google account with the **Gmail API** and **Google Calendar API** enabled, and an OAuth
+  **desktop** client → download it as `credentials.json` into this folder
+- A free **Gemini API key** — https://aistudio.google.com/apikey
+
+### Configure secrets
+Copy the example and fill in your values (this file is git-ignored and never committed):
+
+```bash
+cp secrets.env.example secrets.env
+# then edit secrets.env: set GEMINI_API_KEY and a POSTGRES_PASSWORD
+```
+
+### First-time login (creates token.json)
+Run once on your machine to authorise Gmail/Calendar in the browser:
+
+```bash
+pip install -r requirements.txt
+python run_all.py
+```
+
+### Run hands-off with Docker
+```bash
+docker compose up -d --build     # starts the app + PostgreSQL, runs every 30 min
+docker compose logs -f           # watch it work
+docker compose exec email-agent python db_stats.py   # query the database
+```
+
+The generated dashboard is written to `state/results.html`.
+
+---
+
+## 📁 Project structure
+
+```
+email_agent/
+├── run_all.py            # orchestrator: one AI call → label + digest + calendar + DB
+├── classify.py           # Gmail auth, email fetch, classification, label helpers
+├── newsletter_digest.py  # newsletter web page: pie chart, keyword charts, list
+├── calendar_sync.py      # Google Calendar event creation
+├── db.py                 # PostgreSQL storage (emails, events)
+├── db_stats.py           # SQL summary queries
+├── scheduler.py          # 30-minute loop (container entrypoint)
+├── Dockerfile
+├── docker-compose.yml    # app + postgres, volumes for secrets/state/db
+└── requirements.txt
+```
+
+---
+
+## 🎯 Skills demonstrated
+
+- **Business analysis:** requirements elicitation & iterative refinement, scope management,
+  trade-off analysis (cost vs. capability, accuracy vs. free-tier limits)
+- **Solution design:** MVP-first, staged delivery; process automation of a manual workflow
+- **Engineering:** API integration, LLM prompt engineering & structured output, OAuth 2.0,
+  data modelling (SQL), containerisation & orchestration, data visualisation
+- **Security:** secrets kept out of the image & repo (env files / mounted volumes / `.gitignore`)
+
+---
+
+## 🔒 Security
+
+Credentials (`credentials.json`, `token.json`), the API key, database password (`secrets.env`)
+and all generated data (`state/`) are **git-ignored and never uploaded**. They are supplied at
+runtime via environment variables and mounted volumes — never baked into the Docker image.
+
+---
+
+> Personal project. Built iteratively with real inbox data as a learning + portfolio piece.
