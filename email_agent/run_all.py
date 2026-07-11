@@ -43,11 +43,13 @@ RESULTS = STATE_DIR / "results.html"       # 뉴스레터 요약 페이지
 #  통합 Pydantic 모델 — 세 기능(분류/뉴스레터/캘린더)에 필요한 모든 필드
 # ─────────────────────────────────────────────────────────────────────────────
 class CalendarEvent(BaseModel):
-    """메일 하나에서 나온 '날짜 있는 일정' 한 건. 한 메일에 여러 개 나올 수 있음."""
+    """메일 하나에서 나온 '날짜 있는 일정' 한 건. 한 메일에 여러 개 나올 수 있음.
+    kind 가 uni/interview 인 것만 실제 캘린더에 등록한다(그 외는 무시)."""
     title: str
     start: str        # "YYYY-MM-DD"(종일) 또는 "YYYY-MM-DDTHH:MM:SS"(시각)
     all_day: bool
     notes: str        # 무엇/언제까지 액션이 필요한지 (한국어)
+    kind: Literal["uni", "interview", "other"]   # 학교 / 면접 / 그 외
 
 
 class EmailAnalysis(BaseModel):
@@ -97,22 +99,24 @@ Return ONE item PER email, in order, each with its matching `index` (1-based).
 (title/summary/topic should be filled for every email; they are used when is_newsletter=true.)
 
 ======== 3) CALENDAR ========
-Extract EVERY concrete dated, calendar-worthy item as a SEPARATE entry in `events` (a list).
-ONE email — ESPECIALLY a newsletter — often contains MULTIPLE dated items; return one event per item.
-Include:
- - bookings / reservations / appointments / confirmed events;
- - university dates & deadlines: assignment due dates, exam/quiz dates, class/tutorial times,
-   enrolment or timetable-adjustment windows (use the CLOSING date), orientation / Welcome Week,
-   event dates, "action required by <date>".
+We track ONLY TWO kinds of dated items — IGNORE everything else:
+ (a) kind="uni": UNIVERSITY schedules & deadlines — assignment due dates, exam/quiz dates,
+     class/tutorial times, enrolment or timetable-adjustment windows (use the CLOSING date),
+     orientation / Welcome Week, university event dates, "action required by <date>".
+ (b) kind="interview": a JOB INTERVIEW appointment (phone / video / on-site) that has a date/time.
+Return one entry in `events` PER such item (a newsletter may contain several uni items).
 For each event object:
  - title: short calendar title (English or Korean).
  - start: "YYYY-MM-DD" if no specific time (then all_day=true),
           or "YYYY-MM-DDTHH:MM:SS" if a time is given (then all_day=false).
  - all_day: true/false accordingly.
  - notes: 1-2 lines in Korean describing what it is / what action is needed.
+ - kind: "uni" or "interview".
+Do NOT create events for anything else — real-estate move-ins/inspections, bookings, reservations,
+shopping deliveries, webinars, general appointments. Skip them entirely (do not add to events).
 For a date RANGE (e.g. "21-25 July"), use the START date and mention the full range in notes.
 Resolve relative dates (e.g. "next Friday", "Friday 20 July") using today's date above.
-If there are NO dated items, return an empty list for events."""
+If there are NO uni/interview dated items, return an empty list for events."""
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -197,28 +201,29 @@ def main():
     quota["count"] += 1
     _save_json(QUOTA, quota)
 
-    # 5a) Gmail 라벨 부착
+    # 5a) Gmail 라벨 부착 + 인박스(전체 메일) 엔트리 생성
     label_cache = C.load_labels(gmail)
+    new_entries = []
     for a in items:
         idx = a.index - 1
         if not (0 <= idx < len(new_emails)):
             continue
         e = new_emails[idx]
         label_name = C.label_name_for(a)   # EmailAnalysis 는 category/uni_subtype 를 가짐
+        new_entries.append(ND.make_entry(a, e, label_name))
         try:
             C.apply_label(gmail, e["id"], label_name, label_cache)
             print(f"  🏷️  [{label_name}] {e['subject']}")
         except Exception as ex:  # 라벨 하나 실패해도 전체는 진행
             print(f"  ⚠️  라벨 실패({e['subject']}): {ex}")
 
-    # 5b) 뉴스레터 요약 HTML — 누적 아카이브에 새 뉴스레터를 더해 날짜순으로 다시 그림
-    pairs = ND.select_newsletters(items, new_emails)   # LinkedIn/Seek 등 제외
-    archive = ND.load_archive()
-    before = len(archive)
-    archive = ND.merge_into_archive(archive, pairs)
-    ND.save_archive(archive)
-    RESULTS.write_text(ND.build_html(archive), encoding="utf-8")
-    print(f"  📰 뉴스레터 누적 {len(archive)}개 (이번 +{len(archive) - before}) → {RESULTS.resolve()}")
+    # 5b) 전체 메일 대시보드 + 뉴스레터 페이지 — 인박스에 누적(히스토리 보존) 후 다시 그림
+    inbox = ND.load_inbox()
+    before = len(inbox)
+    inbox = ND.merge_inbox(inbox, new_entries)
+    ND.save_inbox(inbox)
+    RESULTS.write_text(ND.build_page(inbox), encoding="utf-8")
+    print(f"  📬 메일 누적 {len(inbox)}개 (이번 +{len(inbox) - before}) → {RESULTS.resolve()}")
 
     # 5c) 캘린더 이벤트 생성 — 한 메일에서 나온 여러 일정을 각각 등록
     #     (calendar_sync 의 생성 로직 재사용, 일정별로 중복 방지 키 사용)
@@ -231,6 +236,8 @@ def main():
             continue
         e = new_emails[idx]
         for ev in a.events:
+            if ev.kind not in ("uni", "interview"):   # 학교/면접만 등록, 그 외는 건너뜀
+                continue
             key = f"{e['id']}|{ev.title}|{ev.start}"   # 같은 메일의 같은 일정은 한 번만
             if key in cal_processed:
                 continue
