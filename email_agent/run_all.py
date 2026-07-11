@@ -24,6 +24,7 @@ from pydantic import BaseModel
 import classify as C            # 인증/메일읽기/라벨 + build_batch_prompt
 import calendar_sync as CS       # 캘린더 생성 로직 + 중복 방지(state)
 import newsletter_digest as ND   # build_html / 발신자 제외 / 뉴스레터 선별
+import db                        # PostgreSQL 저장(DATABASE_URL 있을 때만)
 
 sys.stdout.reconfigure(encoding="utf-8")
 
@@ -230,6 +231,7 @@ def main():
     cal_processed = CS.load_processed()
     cal = None
     created = 0
+    event_rows = []   # DB 저장용
     for a in items:
         idx = a.index - 1
         if not (0 <= idx < len(new_emails)):
@@ -256,6 +258,10 @@ def main():
                 gev = CS.create_event(cal, info)
                 cal_processed[key] = gev.get("id")
                 created += 1
+                event_rows.append({
+                    "gcal_id": gev.get("id"), "email_id": e["id"], "title": ev.title,
+                    "start": ev.start, "all_day": ev.all_day, "kind": ev.kind, "notes": ev.notes,
+                })
                 when = ev.start + (" (종일)" if ev.all_day else "")
                 print(f"  📅 일정 등록: {ev.title} [{when}]")
             except Exception as ex:
@@ -263,6 +269,16 @@ def main():
     if created:
         CS.save_processed(cal_processed)
     print(f"  📅 새 일정 {created}개 등록")
+
+    # 5d) PostgreSQL 에도 저장 (DATABASE_URL 있을 때만; 실패해도 전체 실행은 계속)
+    if db.enabled():
+        try:
+            db.init()
+            db.upsert_emails(new_entries)
+            db.upsert_events(event_rows)
+            print(f"  🗄️  DB 저장: 메일 {len(new_entries)}건 · 일정 {len(event_rows)}건")
+        except Exception as ex:
+            print(f"  ⚠️  DB 저장 건너뜀: {ex}")
 
     # 6) 처리한 메일 id 기록 (다음 실행부터 중복 분석 방지)
     stamp = datetime.now().isoformat(timespec="seconds")

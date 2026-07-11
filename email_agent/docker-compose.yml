@@ -1,13 +1,29 @@
 services:
-  email-agent:
+  db:                               # PostgreSQL 데이터베이스 컨테이너
+    image: postgres:16
+    env_file: secrets.env           # POSTGRES_USER / POSTGRES_PASSWORD / POSTGRES_DB
+    environment:
+      - TZ=Australia/Brisbane
+    ports:
+      - "5432:5432"                 # 로컬 DB 도구(pgAdmin/DBeaver)로 접속할 때 사용
+    volumes:
+      - pgdata:/var/lib/postgresql/data   # 데이터 영속화(재시작해도 유지)
+    restart: unless-stopped
+
+  email-agent:                      # 이메일 에이전트(30분 스케줄러)
     build: .
-    env_file: secrets.env          # GEMINI_API_KEY 등 (이미지에 넣지 않음)
+    env_file: secrets.env           # GEMINI_API_KEY + DATABASE_URL 등 (이미지에 넣지 않음)
     environment:
       - HEADLESS=1                  # 컨테이너에서는 브라우저를 열지 않음
       - TZ=Australia/Brisbane
+    depends_on:
+      - db
     volumes:
       # 비밀정보/상태는 런타임에 주입 (이미지에 굽지 않음)
-      - ./credentials.json:/app/credentials.json:ro   # 읽기 전용
-      - ./token.json:/app/token.json                  # 토큰 갱신 위해 쓰기 가능
-      - ./state:/app/state                            # 캐시/쿼터/결과 HTML
+      - ./credentials.json:/app/credentials.json:ro
+      - ./token.json:/app/token.json
+      - ./state:/app/state
     restart: unless-stopped
+
+volumes:
+  pgdata:                           # Postgres 데이터용 이름있는 볼륨
