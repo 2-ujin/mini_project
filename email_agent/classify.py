@@ -155,7 +155,7 @@ def get_recent_emails(service, max_results=MAX_EMAILS):
             "from": headers.get("from", ""),
             "date": date_str,   # 받은 날짜 (YYYY-MM-DD)
             "ts": ts,           # 정렬용 정수
-            "body": body[:4000],  # 토큰 절약을 위해 앞부분만
+            "body": body[:6000],  # 앞부분만 (과제 마감일 표가 뒤에 있는 경우 대비해 넉넉히)
         })
     return emails
 
@@ -168,7 +168,7 @@ def build_batch_prompt(emails) -> str:
             f"=== EMAIL {i} ===\n"
             f"From: {e['from']}\n"
             f"Subject: {e['subject']}\n"
-            f"Body:\n{e['body'][:2000]}"
+            f"Body:\n{e['body'][:6000]}"
         )
     return "\n\n".join(parts)
 
